@@ -22,12 +22,12 @@ class Game
     }
 
     Dir.mkdir('saves') unless Dir.exist?('saves')
-    File.open('\saves\save.yml', 'w') { |file| file.write(gameData.to_yaml) }
+    File.open('saves/save.yml', 'w') { |file| file.write(gameData.to_yaml) }
     puts 'Game saved'
   end
 
   def load_file
-    loadGame = YAML.load(File.read('\saves\save.yml'))
+    loadGame = YAML.load(File.read('saves/save.yml'))
 
     puts 'Game loaded'
 
