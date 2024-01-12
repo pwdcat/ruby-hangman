@@ -22,12 +22,14 @@ class Game
     }
 
     Dir.mkdir('saves') unless Dir.exist?('saves')
-    File.open('saves/save.yml', 'w') { |file| file.write(gameData.to_yaml) }
+    index = Dir.glob('saves/save*.yml').length
+    index += 1
+    File.open("saves/save#{index}.yml", 'w') { |file| file.write(gameData.to_yaml) }
     puts 'Game saved'
   end
 
-  def load_file
-    loadGame = YAML.load(File.read('saves/save.yml'))
+  def load_file(number)
+    loadGame = YAML.load(File.read("saves/save#{number}.yml"))
 
     puts 'Game loaded'
 
@@ -71,7 +73,7 @@ userInput = ''
 puts 'New Game or Load Game?'
 loop do
   print 'Please enter your choice ("new" or "load"): '
-  userInput = gets.chomp.downcase
+  userInput = gets.chomp
 
   break if %w[new load].include?(userInput)
 
@@ -79,7 +81,11 @@ loop do
 end
 
 game = Game.new(6, word = dictionary.keys.sample, guessArray = Array.new(dictionary[word], '_'), [])
-game.load_file if userInput == 'load'
+if userInput == 'load'
+  puts Dir.glob('saves/save*.yml')
+  print 'Type the number: '
+  game.load_file(gets.chomp)
+end
 
 lives = game.lives
 guessArray = game.guessArray
@@ -88,14 +94,15 @@ word = game.word
 
 # Main Function
 while lives.positive?
+  game.lives = lives
   puts '
 Do you want to save your game? Type "save":
   '
   puts "Lives: #{lives}    Characters Used: #{charactersUsed}"
   puts guessArray.join(' ')
   answer = getInput(charactersUsed, game).downcase
+  charactersUsed.push(answer) unless charactersUsed.include?(answer)
   if word.include?(answer)
-    charactersUsed.push(answer)
     guessArray.map!.with_index do |_text, index|
       word[index] == answer ? word[index] : guessArray[index]
     end
